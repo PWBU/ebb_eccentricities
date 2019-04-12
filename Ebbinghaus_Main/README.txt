@@ -1,0 +1,1 @@
+This experiment is designed to measure pupil change during a 2AIFC procedure, using Ebbinghaus stimuli. Each trial will aport if eye fixation breaks during the presentation of the context or the test stimuli during each trial. Designed for use with Eyelink 1000, and Psychtoolbox installed.

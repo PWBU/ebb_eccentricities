@@ -1,0 +1,43 @@
+function [Staircase Reversal] = staircaseUpdate(Condish, InStairs, StepSize)
+%Condish = ThisFactor(2), InStairs = S, StepSize = sqrt((changeValues(2) - changevalues(1)^2);
+
+
+
+Staircase = InStairs;
+Reversal = 0;
+
+
+if Staircase.Correct(Condish) >= Staircase.UpDown(1)
+    Staircase.Correct(Condish) = 0;
+    Staircase.Incorrect(Condish) = 0;
+    if Staircase.Previous(Condish) ~= 1
+        Reversal = 1;
+        Staircase.Reversals(Condish) = Staircase.Reversals(Condish) + 1;
+    end
+    Staircase.Previous(Condish) = 1;
+    Staircase.Starts(Condish) = Staircase.Starts(Condish) + StepSize;
+   
+elseif Staircase.Incorrect(Condish) >= Staircase.UpDown(2)
+    Staircase.Correct(Condish) = 0;
+    Staircase.Incorrect(Condish) = 0;
+    
+    if Staircase.Previous(Condish) ~= -1
+        Reversal = 1; 
+        Staircase.Reversals(Condish) = Staircase.Reversals(Condish) + 1; 
+    end
+    Staircase.Previous(Condish) = -1; 
+    Staircase.Signal(Condish) = Staircase.Signal(Condish) - StepSize; 
+end
+    
+    %Keep within bounds specified by levels
+    if Staircase.Starts(Condish) < Staircase.Levels(1)
+        Staircase.Starts(Condish) = Staircase.Levels(1);
+    elseif Staircase.Starts(Condish) > Staircase.Levels(2)
+        Staircase.Starts(Condish) = Staircase.Levels(2);
+    end
+
+    
+    
+    
+    
+    

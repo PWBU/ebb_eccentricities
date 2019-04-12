@@ -1,0 +1,69 @@
+%% %% Control panel
+
+% Experimental setup
+distance = 27.5; % distance from screen in cm
+width = 20; % width of screen in cm
+resolution = screenYpixels; % horizontal res of screen in pixels 
+
+
+% Storage variables
+Block_Number = 6;
+numberOfTrials = 100; % per condition! This is ONLY for storage
+NumberOfVariables = 14;
+
+% Stimuli options/dimensions. Sizes are in deg of vis angle
+spaceBetweenStim =13;
+rcircleSize = 1.27; % reference circle size
+inducerLargeSize = 1.27;
+inducerSmallSize = .32;
+fixSize = .16;
+distances = [1.9 2.53 2.85 3.17 3.8 4.44 5.07 8.45]; %linspace(.32, 1.27, 6); %These are arbitrary for now
+changeValues = linspace(-.4, .4, 33);
+numberOfInducers = 6;
+howManyInducerSizes = 2; 
+
+
+% Staircase variables
+upDownRule = [1 1]; 
+toTheBase = 2;
+InitialStepSize = .1; 
+StepSwitch = [2 2 2 15];
+StepAdjust = [.05 .025 .0125];
+
+% Formatting
+pen = 3;
+
+% Timing
+waitB4Stim = .500;
+displayTime = .100; % specified in milliseconds how long to display test stimuli
+
+
+%% Conversion of angles above to pixels
+
+spaceBetweenStim = angle2pix(distance, width, resolution, spaceBetweenStim);
+rcircleSize = angle2pix(distance, width, resolution, rcircleSize);
+inducerLargeSize = angle2pix(distance, width, resolution, inducerLargeSize);
+inducerSmallSize = angle2pix(distance, width, resolution, inducerSmallSize);
+fixSize = angle2pix(distance, width, resolution, fixSize);
+distances = angle2pix(distance, width, resolution, distances);
+
+
+
+
+%% Misc initialisations
+distNum = length(distances);
+hemifieldLocation = [NaN NaN];
+sizeNum = length(changeValues);
+rcircleRect = [0 0 rcircleSize rcircleSize];
+inducerLarge = [0 0 inducerLargeSize inducerLargeSize];
+inducerSmall = [0 0 inducerSmallSize inducerSmallSize];
+fixRect = [0 0 fixSize fixSize];
+correct = NaN;
+answerNow = NaN;
+Trial = 0;
+factorTemp = []; 
+Graveyard = []; 
+
+
+
+

@@ -1,0 +1,160 @@
+% Poutasi W. B. Urale's Ebbinghaus w/ illusory brightness test
+% Version 1.0
+
+% Notes from Schwarzkopf & Rees (2013). PLos ONE 8(3)
+% <)--------|\\| should be 57cm
+% Fixation white dot
+%.16deg, 165 cd/m lum at all times
+% Button press to begin trial
+% 500ms fixation on dark grey background .18cd/m lum
+% 100ms display time (!)
+% Two circles, left and right
+% Horizontal offset (eccentricity) is 4.65deg
+% Both circles filled 41 cd/m^2 luminance.
+% The EBBINGHAUS circle will stay at 1.03 deg
+% It can either have large or small inducers
+% Responses indicated which is LARGER or SMALLER, counterbalanced
+% 972 trials per run (how many runs?)
+%
+
+
+% Inducer size (Big or Small)
+% Distance (from x to n)
+
+
+close all
+clear all
+
+try
+    Code = 1; %input('Name?', 's');
+    Name = 'Tasi';
+    NameNumber = 999;%input('Number?'); Synch = 0;
+    Test = 1;%input('Test? (1) or no (2)?');
+    Synch = input('Sync(1) or Skip sync(2)');
+    Test = input('Test? (1) or no (2)?');
+    sim = input('Simulation(1) or no (2)?');
+    
+    %% SETUP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    run('setup.m');
+    run('controlpanel.m');
+    run('countdown_sounds.m');
+    
+    %% Variable stuff
+    FactorList = fullfact([howManyInducerSizes distNum]); %two incuder sizes x distances x right/left hemifield
+    FactorListSize = size(FactorList);
+    vars = FactorListSize(1);
+    FactorList = [FactorList [1:vars]'];
+    control = [];
+    for skrt = 1:FactorListSize(2)
+        control = [control (max(FactorList(:, skrt))+1)];
+    end
+    control = [control max((FactorList(:, (skrt + 1))))+1];
+    FactorList = [FactorList; control];
+    FactorListSize = (max(FactorList(:, skrt+1)));
+    vars = FactorListSize;
+    
+    
+    
+    %% Staircase setup
+    addpath(genpath('staircase'))
+    starterArray = sign(rand()-1/2)*changeValues(1);
+    for oof = 1:(max(FactorList(:,skrt+1))-1)
+        starterGo = sign(rand()-1/2)*changeValues(1);
+        starterArray = [starterArray; starterGo];
+    end
+    Levels = [changeValues(1) changeValues(length(changeValues))];
+    S = thisStaircaseSetup(vars, starterArray, upDownRule, Levels, InitialStepSize);
+    
+    
+    
+    
+    %% Initiate storage arrays
+    MainStorage = NaN((vars*numberOfTrials), NumberOfVariables);
+    i = 0;
+    numGraves = size(Graveyard);
+    while  vars > numGraves(2)
+        i = i + 1;
+        florp = randi(2); %1 = choose bigger, 2 = choose smaller
+        if sim == 2
+            Screen('Flip', window);
+            
+            if i == 1; run('countdown.m'); end
+            Screen('Flip', window);
+            if florp == 1
+                Screen('DrawText', window, 'point to BIGGER circle', xCenter-100,...
+                    yCenter, white);
+            elseif florp == 2
+                Screen('DrawText', window, 'point to SMALLER circle', xCenter-100,...
+                    yCenter, white);
+            end
+            
+            Screen('Flip', window);
+            [keyIsDown, secs, keyCode] = KbCheck;
+            while ~keyIsDown
+                [keyIsDown, secs, keyCode] = KbCheck;
+            end
+            
+        end
+        
+        
+        ii = 0;
+        numGraves = size(Graveyard);
+        WaitSecs(.001);
+        %BLOCK
+        while ii < numberOfTrials && vars > numGraves(2)
+            ii = ii + 1;
+            Trial = Trial + 1;
+            run('trial.m');
+            if S.Reversals(ThisFactor(3)) == StepSwitch(4)
+                Graveyard = [Graveyard ThisFactor(3)];
+            end
+            numGraves = size(Graveyard);
+            
+            %% Storage procedure
+            for vvv = 1:NumberOfVariables
+                switch vvv
+                    case 1; temp = Code;
+                    case 2; temp = i;
+                    case 3; temp = ii; % within trial
+                    case 4; temp = Trial; % total trial
+                    case 5; temp = ThisFactor(1);
+                    case 6; temp = ThisFactor(2);
+                    case 7; temp = ThisFactor(3);
+                    case 8; temp = hemi;
+                    case 9; temp = correct;
+                    case 10; temp = S.Starts(ThisFactor(3));%% insert the size of the target
+                    case 11; temp = S.Reversals(ThisFactor(3));
+                    case 12; temp = StepsThisTime;
+                    case 13; temp = numGraves(2);
+                    case 13: temp = Reversal; 
+                end
+                MainStorage(Trial, vvv) = temp;
+                
+                
+            end
+           
+            save(strcat(Name, '.mat'));
+            
+            
+            
+        end
+        
+        
+        %% Breaktime
+        run('breaktime.m');
+        
+        
+    end
+    %% CLEAN UP
+catch ERROR
+    save(strcat(Name, '.mat')); %Chage to save to current folder
+    sca; ShowCursor; commandwindow; ListenChar(0); ERROR.message
+end
+save(strcat(Name, '.mat')); %Chage to save to current folder
+sca; ShowCursor; commandwindow; ListenChar(0);
+
+
+
+
+
+

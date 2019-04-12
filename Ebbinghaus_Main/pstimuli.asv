@@ -1,0 +1,116 @@
+
+%% Ok fellas, let's get this bread
+while trialn <= pTrials
+    
+    
+    
+    % Break procedure
+    % In the event that a break happens, we reshuffle the condition stack
+    if abort == 1
+        trialn = trialn - 1;
+        pFactorListtmp = pFactorList(trialn:length(pFactorList), :);
+        pFactorListtmp = pFactorListtmp(randperm(length(pFactorListtmp)), :);
+        pFactorList(trialn:length(pFactorList), :) = pFactorListtmp;
+    end
+    abort = 0; 
+    
+    % Temporal location
+    interval = randi(2); % 1 = test in second interval. 2 = test in first interval.
+    
+    % Large ( . Y . ) or small (.)(.) inducers
+    if ThisFactor(1) == 1 % 1 = large inducers
+        inducerSize = inducerLarge;
+    elseif ThisFactor(1) == 2
+        inducerSize = inducerSmall;  % 2 = small inducers
+    end
+    
+    % Staircase stuff
+    thisTestSize = S.Starts(ThisFactor(3));
+    StepsThisTime = S.Steps(ThisFactor(3));
+    testSize = rcircleRect(3)*(toTheBase^thisTestSize);
+    tcircleRect = [0 0 testSize testSize];
+    
+    % Which stim is objectively bigger?
+    if tcircleRect(3)>rcircleRect(3); testIs = 2; %smaller
+    elseif tcircleRect(3)<rcircleRect(3); testIs = 1; %bigger
+    end
+    
+    % What response indicates the percieved "bigger" stimulus?
+    if (interval == 1 && florp == 1) || (interval == 2 && florp == 2)
+        answerNow = 2; % pointing to right side (second interval) means t circle is bigger
+    elseif (interval == 2 && florp == 1) || (interval == 1 && florp == 2)
+        answerNow = 1; % pointing to the left side (first interval) means t circle is bigger
+    end
+    
+    
+    % Rects for center circles
+    rcircleRectNow = CenterRectOnPoint(rcircleRect, xCenter, yCenter);
+    tcircleRect = CenterRectOnPoint(tcircleRect, xCenter, yCenter);
+    
+    
+ 
+    
+    
+    % Begin displaying stimuli
+    for whichInterval = 1:2 %two intervals
+        %% it's stim time sis
+        %'c' suffix = context, 's' suffice = stim
+        if whichInterval == interval; TrialType = 'test'; else
+            TrialType = 'refs '; end
+        TrialID = [TrialType, num2str(trialn)]; 
+        EyelinkUtility(1, IsEL); 
+        EyelinkUtility(5, IsEL, '[TRIALID = ', ); 
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Fx      %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Screen('Flip', window);  % Begin with fixation
+        fixationCross(window, white, pen, xCenter, yCenter);
+        Then = Screen('Flip', window); % Stamp b4 context display
+        EyelinkUtility(5, IsEL, )
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Nc      %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if ThisFactor(1) ~= max(FactorList(:, 1)) && whichInterval == interval
+            for ini = 1:numberOfInducers
+                distanceNow = (rcircleSize/2)+...
+                    (distances(ThisFactor(2))) + (testSize/2);
+                [xi, yi] = pol2cart((pi/180)*(ini*(360/numberOfInducers)),...
+                    distanceNow);
+                xi = xi + (xCenter + (inducey*...
+                    (.5* spaceBetweenStim)));
+                yi = yi + yCenter;
+                inducerThis = CenterRectOnPoint(inducerSize, xi, yi);
+                Screen('FrameOval', window, white, inducerThis, pen, pen);
+            end
+        end
+        fixationCross(window, white, pen, xCenter, yCenter);
+        Now = GetSecs(); while (Now - Then) <  waitB4Stim && broke == 0
+            Now = GetSecs(); broke = EyeLinkUtility(3, IsEL);end
+        if abort == 1; break; end
+        
+        Then = Screen('Flip', window); % Stamp b4 stimuli display
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Ns      %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Time to to display the test stimulus
+        fixationCross(window, white, pen, xCenter, yCenter);
+        if interval == whichInterval
+            Screen('FillOval', window, white, tcircleRect); else
+            Screen('FillOval', window, white, rcircleRectNow);
+        end
+        Now = GetSecs(); while (Now - Then) <  displayTime; Now = GetSecs();
+            broke = EyeLinkUtility(3, IsEL); end
+        if abort == 1; break; end
+        Then = Screen('Flip', window);
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%       Fin      %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        fixationCross(window, white, pen, xCenter, yCenter);
+        Now = GetSecs(); while (Now - Then) <  displayTime; Now = GetSecs(); end
+        Screen('Flip', window);
+        EyeLinkUtility(4, IsEL)
+        
+        
+    end
+    
+end
+
+

@@ -1,0 +1,40 @@
+colNames = {'Code', 'Block', 'WTrial', 'TTrial', 'InducerSize', ...
+    'Distance', 'Condition', 'Hemifield', 'Correct', 'RSize', ...
+    'Reversals', 'StepSize', 'NumGraves'};
+table = array2table(MainStorage, 'VariableNames', colNames);
+
+
+
+for biic = 1:vars
+    grphF = FactorList(biic, :);
+    if grphF(1) == 1
+        indoosh = 'Large';
+    elseif grphF(1) == 2;
+        indoosh = 'Small';
+    elseif grphF(1) == 3
+        indoosh = 'Control';
+    end
+    x = table(table.Distance == grphF(2) &...
+        table.InducerSize == grphF(1), :); xSize = size(x);
+    graph = plot(1:xSize(1), x.RSize, 'k*--');
+    
+    if biic ~= vars(length(vars)); 
+    saveas(graph, strcat(indoosh, '_(', num2str(distances(grphF(2))),...
+        ').png'));
+    else 
+        saveas(graph, strcat(indoosh, '_(NaN).png'));
+    end
+end
+
+
+
+for biic = 1:vars
+    grphF = FactorList(biic, :);
+    x = table(table.Distance == grphF(2) &...
+        table.InducerSize == grphF(1), :); xSize = size(x);
+    graph = plot(1:xSize(1), x.Reversals, 'rd--');
+    hold on
+end
+hold off
+saveas(graph, strcat(indoosh, 'plotReversals.png'));
+

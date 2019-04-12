@@ -1,0 +1,153 @@
+
+Screen('Flip', window);
+
+%% Selecting the condition and making sure it is not in the graveyard
+conditionGo = randi(vars);
+while ismember(conditionGo, Graveyard) == 1; conditionGo = randi(vars); end
+ThisFactor = FactorList(conditionGo, :);
+
+%% Draw stimuli
+
+% Temporal location
+interval = randi(2); % 1 = test in second interval. 2 = test in first interval.
+
+% Large ( . Y . ) or small (.)(.) inducers
+if ThisFactor(1) == 1 % 1 = large inducers
+    inducerSize = inducerLarge;
+elseif ThisFactor(1) == 2
+    inducerSize = inducerSmall;  % 2 = small inducers
+end
+
+% Staircase stuff
+thisTestSize = S.Starts(ThisFactor(3));
+StepsThisTime = S.Steps(ThisFactor(3));
+rcircleRect = [0 0 rcircleSize rcircleSize];
+testSize = rcircleRect(3)*(toTheBase^thisTestSize);
+tcircleRect = [0 0 testSize testSize];
+
+% Which stim is objectively bigger?
+if tcircleRect(3)>rcircleRect(3); testIs = 2; %smaller
+elseif tcircleRect(3)<rcircleRect(3); testIs = 1; %bigger
+end
+
+% What response indicates the percieved "bigger" stimulus?
+if (interval == 1 && florp == 1) || (interval == 2 && florp == 2)
+    answerNow = 2; % pointing to right side (second interval) means t circle is bigger
+elseif (interval == 2 && florp == 1) || (interval == 1 && florp == 2)
+    answerNow = 1; % pointing to the left side (first interval) means t circle is bigger
+end
+
+
+% Rects for center circles
+rcircleRectNow = CenterRectOnPoint(rcircleRect, xCenter, yCenter);
+tcircleRect = CenterRectOnPoint(tcircleRect, xCenter, yCenter);
+
+% Begin displaying stimuli
+for whichInterval = 1:2 %two intervals
+    %% it's stim time sis
+%'c' suffix = context, 's' suffice = stim
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Fx      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Screen('Flip', window);  % Begin with fixation
+fixationCross(window, white, pen, xCenter, yCenter); 
+Then = Screen('Flip', window); % Stamp b4 context display
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Nc      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if ThisFactor(1) ~= max(FactorList(:, 1)) && whichInterval == interval
+    for ini = 1:numberOfInducers
+        distanceNow = (rcircleSize/2)+...
+            (distances(ThisFactor(2))) + (testSize/2); 
+        [xi, yi] = pol2cart((pi/180)*(ini*(360/numberOfInducers)),...
+            distanceNow);
+        xi = xi + (xCenter + (inducey*...
+            (.5* spaceBetweenStim)));
+        yi = yi + yCenter;
+        inducerThis = CenterRectOnPoint(inducerSize, xi, yi);
+        Screen('FrameOval', window, white, inducerThis, pen, pen);
+    end
+end
+fixationCross(window, white, pen, xCenter, yCenter); 
+Now = GetSecs(); while (Now - Then) <  waitB4Stim; Now = GetSecs(); end
+Then = Screen('Flip', window); % Stamp b4 stimuli display
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Ns      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Time to to display the text
+fixationCross(window, white, pen, xCenter, yCenter); 
+if interval == whichInterval
+    Screen('FillOval', window, white, tcircleRect); else
+    Screen('FillOval', window, white, rcircleRectNow); 
+end
+Now = GetSecs(); while (Now - Then) <  displayTime; Now = GetSecs(); end
+Then = Screen('Flip', window);
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%       Fin      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fixationCross(window, white, pen, xCenter, yCenter);
+Now = GetSecs(); while (Now - Then) <  displayTime; Now = GetSecs(); end
+Screen('Flip', window);
+
+
+
+
+
+
+
+
+end
+
+
+
+
+
+
+%% Response
+if sim == 2
+    [keyIsDown, secs, keyCode] = KbCheck;
+    while ~keyCode(KbName('LeftArrow')) && ~keyCode(KbName('RightArrow'))...
+            && ~keyCode(KbName('F3')) && ~keyCode(KbName('p'))
+        [keyIsDown, secs, keyCode] = KbCheck;
+        RT = secs - StimAt;
+    end
+end
+
+
+Screen('Flip', window);
+
+
+%% Input and Stahp
+if sim == 2
+    if keyCode(KbName('F3')); throw;
+    elseif keyCode(KbName('p')); Input = 99;
+        if florp == 1
+            Screen('DrawText', window, 'point to BIGGER circle', xCenter-100,...
+                yCenter, white);
+        elseif florp == 2
+            Screen('DrawText', window, 'point to SMALLER circle', xCenter-100,...
+                yCenter, white);
+        end
+        Screen('Flip', window); WaitSecs(.25);
+        KbPass;
+        run('countdown.m');
+    elseif keyCode(KbName('LeftArrow')); Input = 1; % left response
+    elseif keyCode(KbName('RightArrow')); Input = 2; % right response
+    end
+    
+    
+ 
+    
+    
+    if Input == answerNow; correct = 1; %not that "correct" simply means that the test circle is perceived as BIGGER
+    elseif Input == 99; correct = 3;
+    elseif Input == 3; correct = 3;
+    else; correct = 2;
+    end
+    
+    
+
+
+S = staircaseGo(ThisFactor(3), S, correct);
+[S, Reversal] = staircaseUpdate(ThisFactor(3), S,...
+    StepSwitch, StepAdjust);

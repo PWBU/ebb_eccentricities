@@ -1,0 +1,39 @@
+function broke = EyelinkUtility(iji, IsEL, message)
+
+% iji
+% 1 = start
+% 2 = zero mark, might be redundant
+% 3 = online gaze tracking for fixation maintainence
+% 4 = end trial
+% 5 = send message/ time stamp; EyelinkUtility(5, IsEL, message)
+
+
+
+
+if IsEL == 1
+    if nargin < 3
+        switch iji
+            case 1 % identify trial and start recording
+                Eyelink('Message', 'TRIAL_ID %d', puupCount); % tell Eyelink the name of the trial
+                Eyelink('StartRecording'); % begin recording
+                WaitSecs(0.1);
+                
+            case 2 % zero-point in EDF file and do some shit with the el bg rect
+                Eyelink('Message', 'ZERO');
+                Screen('FillRect', el.window, background_colour);
+                
+            case 3
+                run('EyelinkFixationControl.m');
+                
+            case 4 %%  EL: End the trial
+                Eyelink('Message', 'TRIAL_ID %d END');
+                Eyelink('Stoprecording');
+                
+            case 6
+                run('initiate_EL.m');
+        end
+    elseif nargin == 3 && iji == 5
+        Eyelink('Message', message); % time stamp something in EL
+    end
+end
+end
