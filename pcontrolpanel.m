@@ -40,7 +40,7 @@ numberOfTrials = 50;
 upDownRule = [1 1];
 toTheBase = 2;
 InitialStepSize = .1;
-StepSwitch = [2 4 8 17];
+StepSwitch = [2 4 8 25];
 StepAdjust = [.075 .05 .05];
 
 %% Formatting
