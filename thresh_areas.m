@@ -1,7 +1,7 @@
 blanks = NaN((vars/2), 1);
-fctThresh = [FactorList(1:(vars/2), :), blanks, ...
-    blanks, blanks];
-eccs = [0 3 5 7 10];
+fctThresh = [FactorList(1:(vars/2), :) ...
+    ];
+eccs = [0];
 
 % Compute average between two staircases
 for iic = 1:(vars/2)
@@ -43,9 +43,10 @@ for iiic = 1:vars
         xo >  (xoAv - 2*(xoAbsMed))));
     if iiic <= vars/2
         fctThresh(iiic, 5) = thresh;
-    elseif iiic > vars/2
-        fctThresh(iiic-(vars/2), 6) = thresh;
     end
+%     elseif iiic > vars/2
+%         fctThresh(iiic-(vars/2), 6) = thresh;
+%     end
     
     
 end

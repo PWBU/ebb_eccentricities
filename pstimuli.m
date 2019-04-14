@@ -43,18 +43,18 @@ try
         
         %%%%%%%%%%%%%%%%%%%%%%%%%       Test      %%%%%%%%%%%%%%%%%%%%%%%%%
         % Inducers
-        if ThisFactor(1) ~= max(FactorList(:, 1)) && whichInterval == interval
-            for ini = 1:numberOfInducers
-                distanceNow = (rcircleSize/2)+...
-                    edgeDis + (inducerSize(3)/2);
-                [xi, yi] = pol2cart((pi/180)*(ini*(360/numberOfInducers)),...
-                    distanceNow);
-                xi = xi + xCenter+randOffset(whichInterval);
-                yi = yi + yCenterNow;
-                inducerThis = CenterRectOnPoint(inducerSize, xi, yi);
-                Screen('FrameOval', window, grey, inducerThis, pen+2, pen+2);
-            end
-        end
+%         if ThisFactor(1) ~= max(FactorList(:, 1)) && whichInterval == interval
+%             for ini = 1:numberOfInducers
+%                 distanceNow = (rcircleSize/2)+...
+%                     edgeDis + (inducerSize(3)/2);
+%                 [xi, yi] = pol2cart((pi/180)*(ini*(360/numberOfInducers)),...
+%                     distanceNow);
+%                 xi = xi + xCenter+randOffset(whichInterval);
+%                 yi = yi + yCenterNow;
+%                 inducerThis = CenterRectOnPoint(inducerSize, xi, yi);
+%                 Screen('FrameOval', window, grey, inducerThis, pen+2, pen+2);
+%             end
+%         end
         % Center target
         if interval ~= whichInterval
             Screen('FillOval', window, grey, CenterRectOnPoint(tcircleRect, xCenter+randOffset(whichInterval), yCenterNow)); else
