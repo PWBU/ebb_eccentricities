@@ -36,7 +36,7 @@ stopkey=KbName('space'); eye_used = -1;
 
 
 %% Staircase variables
-numberOfTrials = 50;
+numberOfTrials = 100;
 upDownRule = [1 1];
 toTheBase = 2;
 InitialStepSize = .1;
